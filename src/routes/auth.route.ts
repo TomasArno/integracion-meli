@@ -3,8 +3,10 @@ import { Router } from "express";
 const router = Router();
 
 router.get("/login", async (req, res) => {
-  await fetch(
-    "https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=4310728356067187&redirect_uri=https://integracion-natural.onrender.com/auth/meli"
+  const { APP_ID } = process.env;
+
+  location.replace(
+    `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${APP_ID}&redirect_uri=https://integracion-natural.onrender.com/auth/meli`
   );
 });
 
@@ -26,7 +28,6 @@ router.get("/meli", async (req, res) => {
   });
 
   const data = await response.json();
-  console.log(data);
 
   res.status(200).json(data);
 });
