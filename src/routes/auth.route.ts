@@ -5,9 +5,9 @@ const router = Router();
 router.get("/login", async (req, res) => {
   const { APP_ID } = process.env;
 
-  location.replace(
-    `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${APP_ID}&redirect_uri=https://integracion-natural.onrender.com/auth/meli`
-  );
+  res.status(200).json({
+    url: `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${APP_ID}&redirect_uri=https://integracion-natural.onrender.com/auth/meli`,
+  });
 });
 
 router.get("/meli", async (req, res) => {

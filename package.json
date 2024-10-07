@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "tsnd ./src/index.ts",
+    "dev": "tsnd ./src/index.ts --env development",
     "build": "tsc",
     "start": "node ./dist/index.js"
   },
@@ -21,6 +21,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.7.4",
     "@types/sequelize": "^4.28.20",
+    "dotenv": "^16.4.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.6.2"
   }
