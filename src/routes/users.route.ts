@@ -24,4 +24,18 @@ router.post("/test", async (req, res) => {
   res.status(200).json(data);
 });
 
+router.get("/me", async (req, res) => {
+  const { ACCESS_TOKEN } = process.env;
+
+  const response = await fetch("https://api.mercadolibre.com/users/me", {
+    headers: {
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+    },
+  });
+
+  const data = await response.json();
+
+  res.status(200).json({ data: { id: data.id } });
+});
+
 export default router;
