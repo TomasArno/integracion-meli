@@ -4,7 +4,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   const { ACCESS_TOKEN } = process.env;
-  const { sellerId } = req.query;
+  // const { sellerId } = req.query;
 
   const headers = {
     Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -16,7 +16,9 @@ router.get("/", async (req, res) => {
   };
 
   const response = await fetch(
-    `https://api.mercadolibre.com/orders/search?seller=${sellerId}&order.date_created.from=${date.from}&order.date_created.to=${date.to}`,
+    `https://api.mercadolibre.com/orders/search?seller=${2021489598}&order.date_created.from=${
+      date.from
+    }&order.date_created.to=${date.to}`,
     {
       headers,
     }
@@ -24,7 +26,33 @@ router.get("/", async (req, res) => {
 
   const data = await response.json();
 
-  res.status(200).json({ data: data.results });
+  if (data.status) {
+    res.status(403).json({ message: "Permiso denegado" });
+    return;
+  }
+
+  const orders_info = data.results[0];
+
+  const products = orders_info.order_items.map((item) => {
+    return {
+      title: item.item.title,
+      quantity: item.quantity,
+      status: item.status_detail,
+      unitPrice: item.unit_price,
+      total: item.full_unit_price,
+      sku: item.item.seller_sku,
+    };
+  });
+
+  const buyerId = orders_info.buyer.id;
+  const status = orders_info.status;
+
+  const { total_amount: total, date_created: dateCreated } =
+    orders_info.order_items;
+
+  res
+    .status(200)
+    .json({ data: { products, buyerId, total, status, dateCreated } });
 });
 
 export default router;
