@@ -1,48 +1,23 @@
+import Users from "../services/users.service";
+
 class UsersController {
   static async create(req, res, next) {
     try {
-      const { ACCESS_TOKEN } = process.env;
+      const data = await Users.create();
 
-      const body = {
-        site_id: "MLA",
-      };
-
-      const response = await fetch(
-        "https://api.mercadolibre.com/users/test_user",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${ACCESS_TOKEN}`,
-          },
-
-          body: JSON.stringify(body),
-        }
-      );
-
-      const data = await response.json();
-
-      res.status(200).json(data);
+      res.status(200).json({ data });
     } catch (error) {
-      return error;
+      next(error);
     }
   }
 
   static async getPersonalData(req, res, next) {
     try {
-      const { ACCESS_TOKEN } = process.env;
+      const data = await Users.getPersonalData();
 
-      const response = await fetch("https://api.mercadolibre.com/users/me", {
-        headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
-        },
-      });
-
-      const data = await response.json();
-
-      res.status(200).json({ data: { id: data.id } });
+      res.status(200).json({ data });
     } catch (error) {
-      return error;
+      next(error);
     }
   }
 }
