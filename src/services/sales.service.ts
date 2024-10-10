@@ -1,5 +1,3 @@
-import Users from "./users.service";
-
 class SalesService {
   static async getAll(query) {
     try {
@@ -44,7 +42,7 @@ class SalesService {
       });
 
       const buyerId = orders_info.buyer.id;
-      const { status, date_created: dateCreated } = orders_info;
+      const { status, date_created } = orders_info;
       const total = orders_info.order_items.total_amount;
 
       const billingInfo = await this.getBillingInfo(orders_info.id);
@@ -55,7 +53,7 @@ class SalesService {
           ...billingInfo,
           buyerId,
         },
-        dateCreated,
+        dateCreated: date_created,
         total,
         status,
       };

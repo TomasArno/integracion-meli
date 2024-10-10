@@ -8,4 +8,4 @@ function checkPass(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-export { checkPass };
+export default checkPass;

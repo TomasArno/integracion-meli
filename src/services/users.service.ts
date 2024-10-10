@@ -46,26 +46,22 @@ class UsersService {
     }
   }
 
-  static async getById(id: string | number) {
+  static async getById(userId: string | number) {
     try {
       const { ACCESS_TOKEN } = process.env;
 
       const response = await fetch(
-        `https://api.mercadolibre.com/shops/cda/customers?buyer_id=${id}`,
+        `https://api.mercadolibre.com/users/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${ACCESS_TOKEN}`,
           },
         }
       );
-      // const response = await fetch(`https://api.mercadolibre.com/users/${id}`, {
-      //   headers: {
-      //     Authorization: `Bearer ${ACCESS_TOKEN}`,
-      //   },
-      // });
+
       const data = await response.json();
 
-      return data;
+      return { id: data.id };
     } catch (error) {
       return error;
     }

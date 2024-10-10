@@ -1,8 +1,11 @@
+import "./utils/check-env";
+import syncDb from "./database/sync";
 import app from "./app";
-import { checkEnv } from "./utils/check-env";
 
-checkEnv();
+(() => {
+  syncDb();
 
-const PORT = process.env.PORT;
+  const PORT = process.env.PORT;
 
-app.listen(PORT, () => console.log("server running on port:", PORT));
+  app.listen(PORT, () => console.log("server running on port:", PORT));
+})();
