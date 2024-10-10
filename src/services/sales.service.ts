@@ -41,7 +41,6 @@ class SalesService {
         };
       });
 
-      const buyerId = orders_info.buyer.id;
       const { status, date_created } = orders_info;
       const total = orders_info.order_items.total_amount;
 
@@ -49,10 +48,7 @@ class SalesService {
 
       return {
         products,
-        buyerData: {
-          ...billingInfo,
-          buyerId,
-        },
+        buyerData: billingInfo,
         dateCreated: date_created,
         total,
         status,
@@ -80,9 +76,31 @@ class SalesService {
 
     const data = await response.json();
 
-    const { doc_number, doc_type } = data.billing_info;
+    const { buyerId, additional_info } = data.billing_info;
 
-    return { docNumber: doc_number, docType: doc_type };
+    const taxData: any = {};
+
+    const propsMap = {
+      TAXPAYER_TYPE_ID: "ivaCondition",
+      DOC_TYPE: "docType",
+      DOC_NUMBER: "docNumber",
+      FIRST_NAME: "firstName",
+      LAST_NAME: "lastName",
+      STATE_NAME: "state",
+      CITY_NAME: "city",
+      STREET_NAME: "street",
+      ZIP_CODE: "zip",
+    };
+
+    additional_info.forEach((obj) => {
+      const key = propsMap[obj.type];
+
+      if (key) {
+        taxData[key] = obj.value;
+      }
+    });
+
+    return { ...taxData, buyerId };
   }
 }
 
