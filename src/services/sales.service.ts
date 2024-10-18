@@ -28,31 +28,36 @@ class SalesService {
         throw new Error("Permiso denegado");
       }
 
-      const orders_info = data.results[0];
+      const ordersInfo = data.results;
 
-      const products = orders_info.order_items.map((item) => {
+      const compras = await ordersInfo.map(async (order) => {
+        const productData = order.order_items.map((item) => {
+          return {
+            title: item.item.title,
+            quantity: item.quantity,
+            status: item.status_detail,
+            unitPrice: item.unit_price,
+            total: item.full_unit_price,
+            sku: item.item.seller_sku,
+          };
+        });
+
+        const { id, status, total_amount, date_created, shipping_cost } = order;
+
+        const billingInfo = await this.getBillingInfo(order.id);
+
         return {
-          title: item.item.title,
-          quantity: item.quantity,
-          status: item.status_detail,
-          unitPrice: item.unit_price,
-          total: item.full_unit_price,
-          sku: item.item.seller_sku,
+          orderId: id,
+          productData,
+          buyerData: billingInfo,
+          dateCreated: date_created,
+          shippingCost: shipping_cost || 0,
+          totalAmount: total_amount,
+          status,
         };
       });
 
-      const { status, date_created } = orders_info;
-      const total = orders_info.order_items.total_amount;
-
-      const billingInfo = await this.getBillingInfo(orders_info.id);
-
-      return {
-        products,
-        buyerData: billingInfo,
-        dateCreated: date_created,
-        total,
-        status,
-      };
+      return await Promise.all(compras);
     } catch (error) {
       return error;
     }
@@ -73,6 +78,7 @@ class SalesService {
         headers,
       }
     );
+    // probar con header x-version:2'
 
     const data = await response.json();
 
