@@ -2,25 +2,28 @@ import "./App.css";
 import { useState, useEffect } from "react";
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
   const [orders, setProducts] = useState([]);
 
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch("http://localhost:8080/sales?pass=1");
-      const { data } = await response.json();
+  const fetchData = async () => {
+    const response = await fetch("http://localhost:8080/sales?pass=1");
+    const { data } = await response.json();
 
-      const orders = [];
+    const orders = [];
 
-      for (const order of data) {
-        for (const product of order.productData) {
-          orders.push({ id: order.orderId, ...product });
-        }
+    for (const order of data) {
+      for (const product of order.productData) {
+        const date = order.dateCreated.split("T")[0];
+
+        orders.push({ id: order.orderId, date, ...product });
       }
-
-      setProducts(orders);
     }
 
+    console.log(orders);
+
+    setProducts(orders);
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -100,21 +103,18 @@ function App() {
   return (
     <div style={styles.container}>
       <h1 style={styles.header}>Mis Ventas</h1>
+
       <div style={styles.searchContainer}>
         <input
           type="text"
           placeholder="Buscar producto..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
           style={styles.searchInput}
         />
-        <button
-          style={styles.searchButton}
-          onClick={() => alert(`Buscando: ${searchTerm}`)}
-        >
+        <button style={styles.searchButton} onClick={() => fetchData()}>
           Buscar
         </button>
       </div>
+
       <table style={styles.table}>
         <thead>
           <tr>
@@ -123,9 +123,10 @@ function App() {
             <th style={styles.th}>Cantidad</th>
             <th style={styles.th}>Precio X U.</th>
             <th style={styles.th}>Total</th>
-            <th style={styles.th}>Fecha</th>
+            <th style={styles.th}>Fecha Alta</th>
           </tr>
         </thead>
+
         <tbody>
           {orders.map((order) => (
             <tr key={order.id}>
@@ -134,7 +135,7 @@ function App() {
               <td style={styles.td}>{order.quantity}</td>
               <td style={styles.td}>${order.unitPrice}</td>
               <td style={styles.td}>${order.total}</td>
-              <td style={styles.td}>{order.total}</td>
+              <td style={styles.td}>{order.date}</td>
             </tr>
           ))}
         </tbody>
