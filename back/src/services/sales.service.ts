@@ -47,10 +47,10 @@ class SalesService {
         const billingInfo = await this.getBillingInfo(order.id);
 
         return {
-          orderId: id,
+          id,
           productData,
           buyerData: billingInfo,
-          dateCreated: date_created,
+          createdAt: date_created.split("T")[0],
           shippingCost: shipping_cost || 0,
           totalAmount: total_amount,
           status,
