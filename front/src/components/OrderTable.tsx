@@ -33,6 +33,7 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 
 import { useState } from "react";
+import { buildQuery } from "../utils/buildQuery";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -79,17 +80,18 @@ function RowMenu() {
 }
 
 const statusMap = {
-  pending: "Pendiente",
-  paid: "Pago",
-  refunded: "Devuelto",
-  canceled: "Cancelado",
+  payment_in_process: "pendiente_acreditar",
+  paid: "pago",
+  partially_refunded: "devuelto",
+  pending_cancel: "pendiente_cancelar",
+  cancelled: "cancelado",
 };
 
 export default function OrderTable() {
   const [order, setOrder] = useState<Order>("desc");
   const [orders, setOrders] = useState([]);
   const [filters, setFilters] = useState({
-    orderId: "",
+    q: "",
     orderState: "paid",
     orderDateFrom: "",
     orderDateTo: "",
@@ -98,7 +100,7 @@ export default function OrderTable() {
   const [open, setOpen] = useState(false);
 
   const handleChange = (
-    filter: "orderState" | "orderId" | "orderDateFrom" | "orderDateTo",
+    filter: "orderState" | "q" | "orderDateFrom" | "orderDateTo",
     newValue: string | null
   ) => {
     console.log(filter, newValue);
@@ -115,10 +117,12 @@ export default function OrderTable() {
   };
 
   const fetchOrders = async () => {
-    const response = await fetch("http://localhost:8080/sales?pass=1");
-    const data = await response.json();
+    const response = await fetch(
+      "http://localhost:8080/sales" + buildQuery({ ...filters, pass: 1 })
+    );
+    if (response.status != 200) return setOrders([]); // manejar con modal
 
-    console.log(filters);
+    const data = await response.json();
 
     setOrders(data.data);
   };
@@ -128,7 +132,12 @@ export default function OrderTable() {
       <FormControl size="sm">
         <FormLabel>Desde</FormLabel>
         <Input
-          onChange={(e) => handleChange("orderDateFrom", e.target.value)}
+          onChange={(e) =>
+            handleChange(
+              "orderDateFrom",
+              new Date(e.target.value).toISOString()
+            )
+          }
           type="date"
           size="sm"
           placeholder="Buscar"
@@ -140,7 +149,9 @@ export default function OrderTable() {
       <FormControl size="sm">
         <FormLabel>Hasta</FormLabel>
         <Input
-          onChange={(e) => handleChange("orderDateTo", e.target.value)}
+          onChange={(e) =>
+            handleChange("orderDateTo", new Date(e.target.value).toISOString())
+          }
           type="date"
           size="sm"
           placeholder="Buscar"
@@ -154,13 +165,15 @@ export default function OrderTable() {
         <Select
           onChange={(e, value: string) => handleChange("orderState", value)}
           size="sm"
+          value={filters.orderState}
           placeholder="Pendiente"
           slotProps={{ button: { sx: { whiteSpace: "nowrap" } } }}
         >
-          <Option value="pending">Pendiente</Option>
+          <Option value="payment_in_process">Pendiente de acreditar</Option>
           <Option value="paid">Pago</Option>
-          <Option value="refunded">Devuelto</Option>
+          <Option value="payment_in_process">Pendiente de cancelar</Option>
           <Option value="cancelled">Cancelado</Option>
+          <Option value="partially_refunded">Devuelto</Option>
         </Select>
       </FormControl>
 
@@ -172,7 +185,7 @@ export default function OrderTable() {
           size="sm"
           onClick={fetchOrders}
         >
-          Descargar
+          Descargar Ventas
         </Button>
       </FormControl>
     </>
@@ -231,8 +244,7 @@ export default function OrderTable() {
           <FormLabel>Buscar por ID</FormLabel>
           <Input
             onChange={(e) =>
-              e.target.value.length == 16 &&
-              handleChange("orderId", e.target.value)
+              e.target.value.length == 16 && handleChange("q", e.target.value)
             }
             size="sm"
             placeholder="29542881"
@@ -353,20 +365,21 @@ export default function OrderTable() {
                     size="sm"
                     startDecorator={
                       {
-                        Pago: <CheckRoundedIcon />,
-                        Devuelto: <AutorenewRoundedIcon />,
-                        Cancelado: <BlockIcon />,
+                        pago: <CheckRoundedIcon />,
+                        devuelto: <AutorenewRoundedIcon />,
+                        cancelado: <BlockIcon />,
                       }[statusMap[row.status]]
                     }
                     color={
                       {
-                        Pago: "success",
-                        Devuelto: "neutral",
-                        Cancelado: "danger",
+                        pago: "success",
+                        devuelto: "neutral",
+                        cancelado: "danger",
                       }[statusMap[row.status]] as ColorPaletteProp
                     }
                   >
-                    {statusMap[row.status]}
+                    {statusMap[row.status].toUpperCase()[0] +
+                      statusMap[row.status].slice(1)}
                   </Chip>
                 </td>
                 <td>

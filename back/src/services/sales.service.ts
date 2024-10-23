@@ -1,22 +1,18 @@
+import { parseQueryParam } from "../utils/query.util";
+
 class SalesService {
   static async getAll(query) {
     try {
       const { ACCESS_TOKEN } = process.env;
       // const { sellerId } = req.query;
+      const queryParsed = parseQueryParam(query);
 
       const headers = {
         Authorization: `Bearer ${ACCESS_TOKEN}`,
       };
 
-      const date = {
-        from: "2024-10-01T00:00:00.000-00:00",
-        to: "2024-10-31T00:00:00.000-00:00",
-      };
-
       const response = await fetch(
-        `https://api.mercadolibre.com/orders/search?seller=${2021489598}&order.date_created.from=${
-          date.from
-        }&order.date_created.to=${date.to}`,
+        `https://api.mercadolibre.com/orders/search` + queryParsed,
         {
           headers,
         }
@@ -25,7 +21,7 @@ class SalesService {
       const data = await response.json();
 
       if (data.status) {
-        throw new Error("Permiso denegado");
+        throw new Error(data.message);
       }
 
       const ordersInfo = data.results;
@@ -59,7 +55,7 @@ class SalesService {
 
       return await Promise.all(compras);
     } catch (error) {
-      return error;
+      throw error;
     }
   }
 
