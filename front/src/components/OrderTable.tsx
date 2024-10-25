@@ -21,6 +21,7 @@ import Menu from "@mui/joy/Menu";
 import MenuButton from "@mui/joy/MenuButton";
 import MenuItem from "@mui/joy/MenuItem";
 import Dropdown from "@mui/joy/Dropdown";
+import AspectRatio from "@mui/joy/AspectRatio";
 
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import SearchIcon from "@mui/icons-material/Search";
@@ -64,14 +65,14 @@ function RowMenu() {
     <Dropdown>
       <MenuButton
         slots={{ root: IconButton }}
-        slotProps={{ root: { variant: "plain", color: "neutral", size: "sm" } }}
+        slotProps={{ root: { variant: "plain", color: "neutral", size: "md" } }}
       >
         <MoreHorizRoundedIcon />
       </MenuButton>
       <Menu size="sm" sx={{ minWidth: 140 }}>
-        <MenuItem>x</MenuItem>
-        <MenuItem>x</MenuItem>
-        <MenuItem>x</MenuItem>
+        <MenuItem>Facturar</MenuItem>
+        <Divider />
+        <MenuItem>Descargar</MenuItem>
         <Divider />
         <MenuItem color="danger">x</MenuItem>
       </Menu>
@@ -88,24 +89,25 @@ const statusMap = {
 };
 
 export default function OrderTable() {
+  const [selected, setSelected] = useState<readonly string[]>([]);
+  const [open, setOpen] = useState(false);
   const [order, setOrder] = useState<Order>("desc");
   const [orders, setOrders] = useState([]);
+  const [offset, setOffset] = useState(0);
+
   const [filters, setFilters] = useState({
     q: "",
     orderState: "paid",
     orderDateFrom: "",
     orderDateTo: "",
   });
-  const [selected, setSelected] = useState<readonly string[]>([]);
-  const [open, setOpen] = useState(false);
 
   const handleChange = (
     filter: "orderState" | "q" | "orderDateFrom" | "orderDateTo",
-    newValue: string | null
+    newValue: string | number | null
   ) => {
-    console.log(filter, newValue);
-
     const newFilter = {};
+
     newFilter[filter] = newValue;
 
     setFilters((currentFilters) => {
@@ -116,9 +118,10 @@ export default function OrderTable() {
     });
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (offset = 0) => {
     const response = await fetch(
-      "http://localhost:8080/sales" + buildQuery({ ...filters, pass: 1 })
+      "http://localhost:8080/sales" +
+        buildQuery({ ...filters, pass: 1, offset })
     );
     if (response.status != 200) return setOrders([]); // manejar con modal
 
@@ -129,36 +132,49 @@ export default function OrderTable() {
 
   const renderFilters = () => (
     <>
-      <FormControl size="sm">
-        <FormLabel>Desde</FormLabel>
-        <Input
-          onChange={(e) =>
-            handleChange(
-              "orderDateFrom",
-              new Date(e.target.value).toISOString()
-            )
-          }
-          type="date"
-          size="sm"
-          placeholder="Buscar"
-          startDecorator={<SearchIcon />}
-          sx={{ flexGrow: 1 }}
-        />
-      </FormControl>
+      <Box
+        sx={{
+          display: { xs: "none", sm: "flex" },
+          gap: 2,
+          "& > *": {
+            minWidth: { xs: "120px", md: "160px" },
+          },
+        }}
+      >
+        <FormControl size="sm">
+          <FormLabel>Desde</FormLabel>
+          <Input
+            onChange={(e) =>
+              handleChange(
+                "orderDateFrom",
+                e.target.value && new Date(e.target.value).toISOString()
+              )
+            }
+            type="date"
+            size="sm"
+            placeholder="Buscar"
+            startDecorator={<SearchIcon />}
+            sx={{ flexGrow: 1 }}
+          />
+        </FormControl>
 
-      <FormControl size="sm">
-        <FormLabel>Hasta</FormLabel>
-        <Input
-          onChange={(e) =>
-            handleChange("orderDateTo", new Date(e.target.value).toISOString())
-          }
-          type="date"
-          size="sm"
-          placeholder="Buscar"
-          startDecorator={<SearchIcon />}
-          sx={{ flexGrow: 1 }}
-        />
-      </FormControl>
+        <FormControl size="sm">
+          <FormLabel>Hasta</FormLabel>
+          <Input
+            onChange={(e) =>
+              handleChange(
+                "orderDateTo",
+                e.target.value && new Date(e.target.value).toISOString()
+              )
+            }
+            type="date"
+            size="sm"
+            placeholder="Buscar"
+            startDecorator={<SearchIcon />}
+            sx={{ flexGrow: 1 }}
+          />
+        </FormControl>
+      </Box>
 
       <FormControl size="sm">
         <FormLabel>Estado</FormLabel>
@@ -169,24 +185,13 @@ export default function OrderTable() {
           placeholder="Pendiente"
           slotProps={{ button: { sx: { whiteSpace: "nowrap" } } }}
         >
+          <Option value="">Todos</Option>
           <Option value="payment_in_process">Pendiente de acreditar</Option>
           <Option value="paid">Pago</Option>
           <Option value="payment_in_process">Pendiente de cancelar</Option>
           <Option value="cancelled">Cancelado</Option>
           <Option value="partially_refunded">Devuelto</Option>
         </Select>
-      </FormControl>
-
-      <FormControl sx={{ marginLeft: "20px" }} size="sm">
-        <FormLabel sx={{ visibility: "hidden" }}>hidden</FormLabel>
-        <Button
-          color="primary"
-          // startDecorator={<DownloadRoundedIcon />}
-          size="sm"
-          onClick={fetchOrders}
-        >
-          Descargar Ventas
-        </Button>
       </FormControl>
     </>
   );
@@ -234,24 +239,23 @@ export default function OrderTable() {
           py: 2,
           display: { xs: "none", sm: "flex" },
           flexWrap: "wrap",
-          gap: 1.5,
+          alignItems: "flex-end",
+          gap: 4,
           "& > *": {
             minWidth: { xs: "120px", md: "160px" },
           },
         }}
       >
-        <FormControl sx={{ flex: 1 }} size="sm">
-          <FormLabel>Buscar por ID</FormLabel>
-          <Input
-            onChange={(e) =>
-              e.target.value.length == 16 && handleChange("q", e.target.value)
-            }
-            size="sm"
-            placeholder="29542881"
-            startDecorator={<SearchIcon />}
-          />
-        </FormControl>
         {renderFilters()}
+        <Button
+          color="primary"
+          // startDecorator={<DownloadRoundedIcon />}
+          size="sm"
+          sx={{ marginLeft: "auto", marginRight: "10px" }}
+          onClick={() => fetchOrders()}
+        >
+          Descargar Ventas
+        </Button>
       </Box>
       <Sheet
         className="OrderTableContainer"
@@ -283,10 +287,14 @@ export default function OrderTable() {
           <thead>
             <tr>
               <th
-                style={{ width: 48, textAlign: "center", padding: "12px 6px" }}
+                style={{
+                  width: "9%",
+                  textAlign: "center",
+                  padding: "12px 6px",
+                }}
               >
                 <Checkbox
-                  size="sm"
+                  size="md"
                   indeterminate={
                     selected.length > 0 && selected.length !== orders.length
                   }
@@ -304,7 +312,7 @@ export default function OrderTable() {
                   sx={{ verticalAlign: "text-bottom" }}
                 />
               </th>
-              <th style={{ width: 120, padding: "12px 6px" }}>
+              <th style={{ width: "20%", padding: "12px 6px" }}>
                 <Link
                   underline="none"
                   color="primary"
@@ -325,13 +333,23 @@ export default function OrderTable() {
                       : { "& svg": { transform: "rotate(180deg)" } },
                   ]}
                 >
-                  ID
+                  Fecha
                 </Link>
               </th>
-              <th style={{ width: 140, padding: "12px 6px" }}>Fecha</th>
-              <th style={{ width: 140, padding: "12px 6px" }}>Estado</th>
-              <th style={{ width: 240, padding: "12px 6px" }}>Cliente</th>
-              <th style={{ width: 140, padding: "12px 6px" }}> </th>
+              <th style={{ width: "20%", padding: "12px 6px" }}>Estado</th>
+              <th style={{ width: "30%", padding: "12px 6px" }}>Cliente</th>
+              <th style={{ width: "25%", padding: "12px 6px" }}>Foto</th>
+              <th style={{ width: "50%", padding: "12px 20%" }}>
+                <Button
+                  color="primary"
+                  // startDecorator={<DownloadRoundedIcon />}
+                  size="sm"
+                  // onClick={() => fetchOrders()}
+                >
+                  Facturar
+                </Button>
+              </th>
+              <th style={{ width: "10%", padding: "12px 0" }}> </th>
             </tr>
           </thead>
           <tbody>
@@ -339,7 +357,7 @@ export default function OrderTable() {
               <tr key={row.id}>
                 <td style={{ textAlign: "center", width: 120 }}>
                   <Checkbox
-                    size="sm"
+                    size="md"
                     checked={selected.includes(row.id)}
                     color={selected.includes(row.id) ? "primary" : undefined}
                     onChange={(event) => {
@@ -354,15 +372,14 @@ export default function OrderTable() {
                   />
                 </td>
                 <td>
-                  <Typography level="body-xs">{row.id}</Typography>
-                </td>
-                <td>
-                  <Typography level="body-xs">{row.createdAt}</Typography>
+                  <Typography level="body-sm" variant="plain">
+                    {row.createdAt}
+                  </Typography>
                 </td>
                 <td>
                   <Chip
                     variant="soft"
-                    size="sm"
+                    size="md"
                     startDecorator={
                       {
                         pago: <CheckRoundedIcon />,
@@ -383,22 +400,72 @@ export default function OrderTable() {
                   </Chip>
                 </td>
                 <td>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      alignItems: "center",
+                    }}
+                  >
                     <div>
-                      <Typography level="body-xs">
-                        {`${row.buyerData.firstName} ${row.buyerData.lastName}`}
+                      <Typography level="body-sm" variant="plain">
+                        {row.buyerData.docType == "DNI"
+                          ? `${row.buyerData.firstName} ${row.buyerData.lastName}`
+                          : row.buyerData.businessName}
                       </Typography>
-                      <Typography level="body-xs">
-                        {`${row.buyerData.ivaCondition} | ${row.buyerData.docNumber}`}
+                      <Typography level="body-sm" variant="plain">
+                        {row.buyerData.docNumber}
+                      </Typography>
+                      <Typography level="body-sm" variant="plain">
+                        {row.buyerData.ivaCondition}
                       </Typography>
                     </div>
                   </Box>
                 </td>
                 <td>
-                  <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                    <Link level="body-xs" component="button">
-                      x
-                    </Link>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      alignItems: "center",
+                      margin: "10px 0",
+                    }}
+                  >
+                    <AspectRatio
+                      sx={{ minWidth: "80px" }}
+                      minHeight="90px"
+                      maxHeight="90px"
+                    >
+                      <img
+                        src={row.productData.thumbnail}
+                        loading="lazy"
+                        alt=""
+                      />
+                    </AspectRatio>
+                  </Box>
+                </td>
+                <td>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 0.5,
+                      // alignItems: "center",
+                    }}
+                  >
+                    <Typography level="body-xs">
+                      {row.productData.title}
+                    </Typography>
+                    <Typography level="body-xs">
+                      {`Unidades: ${row.productData.quantity} | Total: ${row.total}`}
+                    </Typography>
+                    <Typography level="body-xs">
+                      SKU: {row.productData.sku}
+                    </Typography>
+                  </Box>
+                </td>
+                <td>
+                  <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
                     <RowMenu />
                   </Box>
                 </td>
@@ -420,6 +487,12 @@ export default function OrderTable() {
         }}
       >
         <Button
+          onClick={() => {
+            const newValue = offset > 0 ? offset - 50 : 0;
+
+            setOffset(newValue);
+            fetchOrders(newValue);
+          }}
           size="sm"
           variant="outlined"
           color="neutral"
@@ -429,18 +502,12 @@ export default function OrderTable() {
         </Button>
 
         <Box sx={{ flex: 1 }} />
-        {["1", "2", "3"].map((page) => (
-          <IconButton
-            key={page}
-            size="sm"
-            variant={Number(page) ? "outlined" : "plain"}
-            color="neutral"
-          >
-            {page}
-          </IconButton>
-        ))}
-        <Box sx={{ flex: 1 }} />
+
         <Button
+          onClick={() => {
+            setOffset(offset + 50);
+            fetchOrders(offset + 50);
+          }}
           size="sm"
           variant="outlined"
           color="neutral"

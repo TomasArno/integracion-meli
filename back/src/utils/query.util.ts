@@ -24,9 +24,14 @@ function validateQueryProps(query: object) {
     q: "q",
     orderDateFrom: "order.date_created.from",
     orderDateTo: "order.date_created.to",
+    seller: "seller",
+    offset: "offset",
+    limit: "limit",
   };
 
-  const availableProps = { seller: 2021489598 };
+  const availableProps = {
+    sort: "date_desc",
+  };
 
   for (const key in query) {
     if (availablePropsMap[key])

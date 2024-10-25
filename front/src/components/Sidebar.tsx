@@ -9,13 +9,13 @@ import ListItemButton, { listItemButtonClasses } from "@mui/joy/ListItemButton";
 import ListItemContent from "@mui/joy/ListItemContent";
 import Typography from "@mui/joy/Typography";
 import Sheet from "@mui/joy/Sheet";
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import BrightnessAutoRoundedIcon from "@mui/icons-material/BrightnessAutoRounded";
+import Avatar from "@mui/joy/Avatar";
 
 import ColorSchemeToggle from "./ColorSchemeToggle";
 
@@ -72,9 +72,7 @@ export default function Sidebar() {
         }}
       />
       <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-        <IconButton variant="soft" color="primary" size="sm">
-          <BrightnessAutoRoundedIcon />
-        </IconButton>
+        <Avatar size="lg" src="/src/assets/Jazz.ico" />
         <Typography level="title-lg">Jazz</Typography>
         <ColorSchemeToggle sx={{ ml: "auto" }} />
       </Box>
@@ -99,10 +97,10 @@ export default function Sidebar() {
           }}
         >
           <ListItem>
-            <ListItemButton>
-              <HomeRoundedIcon />
+            <ListItemButton selected>
+              <ShoppingCartRoundedIcon />
               <ListItemContent>
-                <Typography level="title-sm">Menú Principal</Typography>
+                <Typography level="title-sm">Ordenes</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
@@ -112,15 +110,6 @@ export default function Sidebar() {
               <DashboardRoundedIcon />
               <ListItemContent>
                 <Typography level="title-sm">Dashboard</Typography>
-              </ListItemContent>
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem>
-            <ListItemButton selected>
-              <ShoppingCartRoundedIcon />
-              <ListItemContent>
-                <Typography level="title-sm">Ordenes</Typography>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
