@@ -19,7 +19,18 @@ import Avatar from "@mui/joy/Avatar";
 
 import ColorSchemeToggle from "./ColorSchemeToggle";
 
+import { useLocation } from "react-router-dom";
+
+import { Link } from "react-router-dom";
+import { useEffect } from "react";
+
 export default function Sidebar() {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log(location.pathname);
+  }, [location]);
+
   return (
     <Sheet
       className="Sidebar"
@@ -100,7 +111,9 @@ export default function Sidebar() {
             <ListItemButton selected>
               <ShoppingCartRoundedIcon />
               <ListItemContent>
-                <Typography level="title-sm">Ordenes</Typography>
+                <Link style={{ textDecoration: "none", color: "white" }} to="/">
+                  <Typography level="title-sm">Ordenes</Typography>
+                </Link>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
@@ -109,17 +122,15 @@ export default function Sidebar() {
             <ListItemButton>
               <DashboardRoundedIcon />
               <ListItemContent>
-                <Typography level="title-sm">Dashboard</Typography>
+                <Link style={{ textDecoration: "none" }} to="dashboard">
+                  <Typography level="title-sm">Dashboard</Typography>
+                </Link>
               </ListItemContent>
             </ListItemButton>
           </ListItem>
 
           <ListItem>
-            <ListItemButton
-              role="menuitem"
-              component="a"
-              // href="/joy-ui/getting-started/templates/messages/"
-            >
+            <ListItemButton>
               <QuestionAnswerRoundedIcon />
               <ListItemContent>
                 <Typography level="title-sm">Mensajes</Typography>

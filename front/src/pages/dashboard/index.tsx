@@ -1,9 +1,6 @@
 import Box from "@mui/joy/Box";
 
-import OrderTable from "../../components/OrderTable";
-import OrderList from "../../components/OrderList";
-
-export default function Main() {
+export default function Dashboard() {
   return (
     <Box
       component="main"
@@ -24,8 +21,7 @@ export default function Main() {
         gap: 1,
       }}
     >
-      <OrderTable />
-      <OrderList />
+      <h1>HOLA</h1>
     </Box>
   );
 }

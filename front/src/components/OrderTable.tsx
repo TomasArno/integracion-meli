@@ -35,6 +35,7 @@ import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 
 import { useState } from "react";
 import { buildQuery } from "../utils/buildQuery";
+import fetchData from "../utils/fetch";
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -83,7 +84,6 @@ function RowMenu() {
 const statusMap = {
   payment_in_process: "pendiente_acreditar",
   paid: "pago",
-  partially_refunded: "devuelto",
   pending_cancel: "pendiente_cancelar",
   cancelled: "cancelado",
 };
@@ -119,13 +119,13 @@ export default function OrderTable() {
   };
 
   const fetchOrders = async (offset = 0) => {
-    const response = await fetch(
-      "http://localhost:8080/sales" +
-        buildQuery({ ...filters, pass: 1, offset })
-    );
-    if (response.status != 200) return setOrders([]); // manejar con modal
+    const data = await fetchData({
+      url:
+        "http://localhost:8080/sales" +
+        buildQuery({ ...filters, pass: 1, offset }),
+    });
 
-    const data = await response.json();
+    if (!data) return setOrders([]); // manejar con modal
 
     setOrders(data.data);
   };
@@ -190,7 +190,6 @@ export default function OrderTable() {
           <Option value="paid">Pago</Option>
           <Option value="payment_in_process">Pendiente de cancelar</Option>
           <Option value="cancelled">Cancelado</Option>
-          <Option value="partially_refunded">Devuelto</Option>
         </Select>
       </FormControl>
     </>
@@ -383,14 +382,14 @@ export default function OrderTable() {
                     startDecorator={
                       {
                         pago: <CheckRoundedIcon />,
-                        devuelto: <AutorenewRoundedIcon />,
+                        pendiente_cancelar: <AutorenewRoundedIcon />,
                         cancelado: <BlockIcon />,
                       }[statusMap[row.status]]
                     }
                     color={
                       {
                         pago: "success",
-                        devuelto: "neutral",
+                        pendiente_cancelar: "neutral",
                         cancelado: "danger",
                       }[statusMap[row.status]] as ColorPaletteProp
                     }
@@ -457,7 +456,10 @@ export default function OrderTable() {
                       {row.productData.title}
                     </Typography>
                     <Typography level="body-xs">
-                      {`Unidades: ${row.productData.quantity} | Total: ${row.total}`}
+                      Unidades: {row.productData.quantity}
+                    </Typography>
+                    <Typography level="body-xs" fontWeight="bold">
+                      Total: ${row.total}
                     </Typography>
                     <Typography level="body-xs">
                       SKU: {row.productData.sku}
