@@ -108,7 +108,7 @@ export default function Sidebar() {
           }}
         >
           <ListItem>
-            <ListItemButton selected>
+            <ListItemButton selected={location.pathname == "/"}>
               <ShoppingCartRoundedIcon />
               <ListItemContent>
                 <Link style={{ textDecoration: "none", color: "white" }} to="/">
@@ -119,7 +119,7 @@ export default function Sidebar() {
           </ListItem>
 
           <ListItem>
-            <ListItemButton>
+            <ListItemButton selected={location.pathname == "/dashboard"}>
               <DashboardRoundedIcon />
               <ListItemContent>
                 <Link style={{ textDecoration: "none" }} to="dashboard">
@@ -130,7 +130,7 @@ export default function Sidebar() {
           </ListItem>
 
           <ListItem>
-            <ListItemButton>
+            <ListItemButton selected={location.pathname == "/messages"}>
               <QuestionAnswerRoundedIcon />
               <ListItemContent>
                 <Typography level="title-sm">Mensajes</Typography>
@@ -152,7 +152,7 @@ export default function Sidebar() {
           }}
         >
           <ListItem>
-            <ListItemButton>
+            <ListItemButton selected={location.pathname == "/settings"}>
               <SettingsRoundedIcon />
               Configuración
             </ListItemButton>

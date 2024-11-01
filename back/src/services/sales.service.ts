@@ -39,7 +39,10 @@ class SalesService {
     try {
       const { ACCESS_TOKEN, SELLER_ID } = process.env;
 
-      const queryParsed = parseQueryParam({ ...query, seller: SELLER_ID });
+      const queryParsed = parseQueryParam({
+        ...query,
+        seller: SELLER_ID,
+      });
 
       const headers: any = {
         Authorization: `Bearer ${ACCESS_TOKEN}`,
@@ -55,7 +58,7 @@ class SalesService {
 
       const data = await response.json();
 
-      if (data.status) {
+      if (response.status != 200) {
         throw new Error(data.message);
       }
 

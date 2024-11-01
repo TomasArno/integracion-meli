@@ -21,6 +21,10 @@ const router = createBrowserRouter([
         path: "/messages",
         element: <Main />,
       },
+      {
+        path: "/settings",
+        element: <Main />,
+      },
     ],
   },
 ]);

@@ -84,7 +84,6 @@ function RowMenu() {
 const statusMap = {
   payment_in_process: "pendiente_acreditar",
   paid: "pago",
-  pending_cancel: "pendiente_cancelar",
   cancelled: "cancelado",
 };
 
@@ -188,7 +187,6 @@ export default function OrderTable() {
           <Option value="">Todos</Option>
           <Option value="payment_in_process">Pendiente de acreditar</Option>
           <Option value="paid">Pago</Option>
-          <Option value="payment_in_process">Pendiente de cancelar</Option>
           <Option value="cancelled">Cancelado</Option>
         </Select>
       </FormControl>
@@ -382,14 +380,14 @@ export default function OrderTable() {
                     startDecorator={
                       {
                         pago: <CheckRoundedIcon />,
-                        pendiente_cancelar: <AutorenewRoundedIcon />,
+                        payment_in_process: <AutorenewRoundedIcon />,
                         cancelado: <BlockIcon />,
                       }[statusMap[row.status]]
                     }
                     color={
                       {
                         pago: "success",
-                        pendiente_cancelar: "neutral",
+                        payment_in_process: "neutral",
                         cancelado: "danger",
                       }[statusMap[row.status]] as ColorPaletteProp
                     }

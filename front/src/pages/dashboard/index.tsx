@@ -1,27 +1,49 @@
-import Box from "@mui/joy/Box";
+import type {} from "@mui/x-date-pickers/themeAugmentation";
+import type {} from "@mui/x-charts/themeAugmentation";
+import type {} from "@mui/x-data-grid/themeAugmentation";
+import type {} from "@mui/x-tree-view/themeAugmentation";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import MainGrid from "../../components/dashboard/MainGrid";
+import AppTheme from "../../utils/shared-theme/AppTheme";
+import {
+  chartsCustomizations,
+  dataGridCustomizations,
+  datePickersCustomizations,
+  treeViewCustomizations,
+} from "./theme/customizations";
 
-export default function Dashboard() {
+const xThemeComponents = {
+  ...chartsCustomizations,
+  ...dataGridCustomizations,
+  ...datePickersCustomizations,
+  ...treeViewCustomizations,
+};
+
+export default function Dashboard(props: { disableCustomTheme?: boolean }) {
   return (
-    <Box
-      component="main"
-      className="MainContent"
-      sx={{
-        px: { xs: 2, md: 6 },
-        pt: {
-          xs: "calc(12px + var(--Header-height))",
-          sm: "calc(12px + var(--Header-height))",
-          md: 3,
-        },
-        pb: { xs: 2, sm: 2, md: 3 },
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        minWidth: 0,
-        height: "100dvh",
-        gap: 1,
-      }}
-    >
-      <h1>HOLA</h1>
-    </Box>
+    <AppTheme {...props} themeComponents={xThemeComponents}>
+      <Box sx={{ display: "flex" }}>
+        <Box
+          component="main"
+          sx={() => ({
+            flexGrow: 1,
+            overflow: "auto",
+          })}
+        >
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: "center",
+              mx: 3,
+              pb: 5,
+              mt: { xs: 8, md: 0 },
+            }}
+          >
+            <MainGrid />
+          </Stack>
+        </Box>
+      </Box>
+    </AppTheme>
   );
 }
